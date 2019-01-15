@@ -9,6 +9,8 @@ inf = float('inf')
 # A pair is a list containing 3 values, [weight, source node, destination node]
 # A value in a pstack is a list containing 2 values [node/vertex, weight]
 
+# Preset graphs
+
 graph1 = [
 [inf, inf, 6, 2, 3],
 [inf, inf, 1, 6, 2],
@@ -57,70 +59,72 @@ graph2_dijkstra = [
 [7,inf,1,inf,inf]
 ]
 
+
+
 preset_graphs = [graph1, graph2, graph3, graph4]
 
-class pstack():
+class pstack(): # The priority stack, basically a stack that will always, in this case, pop the smallest value (this stack is for the dijkstra function below)
     def __init__(self):
-        self.values = []
+        self.values = [] # The list that stores the values in the stack, this stack accepts tuples, containing a node in index 0 and the weight or value of that node in index 1
         
-    def append(self, value):
-        self.values.append(value)
+    def append(self, value): # Appends a value to the stack
+        self.values.append(value) # Appends to the self.values list
         self.values.sort(key=lambda x: x[1], reverse = True) # Sorts in a decending order based on the index 1 of the value, which is weight
     
-    def pop(self):
-        return self.values.pop()
+    def pop(self): # Pops a value from the stack
+        return self.values.pop() # Pops from self.values at the last index, which is the top of the stack
         
-    def isEmpty(self):
-        return (not self.values)
+    def isEmpty(self): # Returns a boolean to check if the stack is empty
+        return (not self.values) # checks if self.values is empty
 
-def generateGraph(size):
-    graph = [[None for i in range(0,size)] for x in range(0,size)] # O(n)
-    for vertex in range(0,size):
-        for edge in range(0,size):
-            rand = randint(0, 31)
-            if rand == 0: rand = inf
-            if vertex == edge:
-                graph[vertex][edge] = inf
+def generateGraph(size): # Returns a random graph based on the given size parameter
+    graph = [[None for i in range(0,size)] for x in range(0,size)] # O(n) # Initializes the graph None value type, to show that there are no values assigned to the paths yet
+    for vertex in range(0,size): # Populates the vertices
+        for edge in range(0,size): # Populates the edges, which is list of weights originating from that vertex
+            rand = randint(0, 31) # Generates a random number from 0 until 30
+            if rand == 0: rand = inf # Sets zeros as infinity, since zero should represent there is no weight or no path to the corresponding vertex
+            if vertex == edge: # The weight of the path to the vertex itself should be set to infinity
+                graph[vertex][edge] = inf 
 
-            elif graph[edge][vertex] != None:
-                graph[vertex][edge] = graph[edge][vertex]
+            elif graph[edge][vertex] != None: # If there is already a weight assigned
+                graph[vertex][edge] = graph[edge][vertex] # Set the weight of the opposite node the same as the current one, since this generates an undirected graph
             else:
-                if rand%randint(1, 9) == 0:
+                if rand%randint(1, 9) == 0: # Raises the chance of infinity to be set as a weight value
                     graph[vertex][edge] = inf
                 else:
-                    graph[vertex][edge] = rand
-    return graph
+                    graph[vertex][edge] = rand # Sets the random number as the weight of the path from the current vertex
+    return graph # returns the random graph
 
-def printall(object): # O(2n)
-    for x in range(len(object)):
-        tabs = (len(object)%10)-len(str(x))
-        print("Node {0}:{1}".format(x, " "*tabs),object[x])
+def printall(object): # Prints the graph, node by node
+    for x in range(len(object)): # Iterates through the graph
+        tabs = (len(object)%10)-len(str(x)) # Sets the amout of tabs
+        print("Node {0}:{1}".format(x, " "*tabs),object[x]) # Prints the current node and its list of weighted paths
 
-def search(array, value):
+def search(array, value): # Searches a value in an array and returns its index (Linear search)
     for index in range(len(array)):
         if array[index] == value:
             return index
     return inf
     
-def getPairs(graph, size):
-    pairs = []
-    for src in range(size):
-        for dest in range(src, size):
-            weight = graph[src][dest]
-            if weight == inf:
+def getPairs(graph, size): # Generates a list of pairs (pairs are explained at the top)
+    pairs = [] # initializes the pairs list
+    for src in range(size): # iterates through all the nodes in the given graph
+        for dest in range(src, size): # iterates through all the weights in the current node
+            weight = graph[src][dest] 
+            if weight == inf: # Continues if the weight is infinity, since it would mean the current pair is not connected to one another
                 continue
             else:
-                pairs.append([weight, src, dest])
-    return pairs
+                pairs.append([weight, src, dest]) # appends the pair into the pairs list
+    return pairs # returns the pairs list
     
-def buildGraph(pairs, size):
-    graph = [[inf for i in range(0,size)] for x in range(0,size)]
+def buildGraph(pairs, size): # The counter part to getPairs(), this function generates an adjacency matrix from a pairs list
+    graph = [[inf for i in range(0,size)] for x in range(0,size)] # initializes the matrix with infinity
     
-    for pair in pairs:
+    for pair in pairs: # iterates through all the pairs in the pairs list
         graph[pair[1]][pair[2]] = pair[0]
         graph[pair[2]][pair[1]] = pair[0]
 
-    return graph
+    return graph # returns the adjacency matrix
 
 def kruskal(graph):
     original_graph = graph
